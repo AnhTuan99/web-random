@@ -38,6 +38,7 @@ export function defaultConfig() {
     groups: [
       { id: "g1", label: "Nhóm cố định", members: [...women] },
     ],
+    wheelQueue: [], // (ẩn) danh sách người được sắp đặt sẽ trúng ở các lượt vòng quay kế tiếp
   };
 }
 

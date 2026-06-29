@@ -76,13 +76,29 @@ export function setVenue(venue) {
 
 export function doSpin() {
   if ((config.venue || "cinema") === "wheel") {
-    lastWheel = spinWheel(config);
+    lastWheel = nextWheelResult();
     lastSpinAt = new Date().toISOString();
     return lastWheel;
   }
   lastResult = spin(config);
   lastSpinAt = new Date().toISOString();
   return lastResult;
+}
+
+// Quyết định người trúng vòng quay: ưu tiên hàng đợi sắp đặt, hết thì random
+function nextWheelResult() {
+  config.wheelQueue = config.wheelQueue || [];
+  while (config.wheelQueue.length) {
+    const name = config.wheelQueue.shift();
+    const idx = config.people.indexOf(name);
+    if (idx >= 0) {
+      persist(); // hàng đợi đã đổi
+      return { winner: name, winnerIndex: idx };
+    }
+    // tên không còn trong danh sách -> bỏ qua, thử tiếp
+    persist();
+  }
+  return spinWheel(config);
 }
 
 export function requestSpin() {
@@ -110,6 +126,42 @@ export function addPerson(name) {
   if (!n) return false;
   if (!config.people.includes(n)) config.people.push(n);
   bumpConfig();
+  return true;
+}
+
+/** Xoá 1 người khỏi danh sách (kèm dọn nhóm + hàng đợi vòng quay) */
+export function removePerson(name) {
+  const n = String(name).trim();
+  if (!n) return false;
+  const before = config.people.length;
+  config.people = config.people.filter((p) => p !== n);
+  if (config.people.length === before) return false;
+  config.groups = (config.groups || []).map((g) => ({
+    ...g,
+    members: g.members.filter((m) => m !== n),
+  }));
+  config.wheelQueue = (config.wheelQueue || []).filter((m) => m !== n);
+  bumpConfig();
+  return true;
+}
+
+/** Đặt hàng đợi người trúng vòng quay (sắp đặt) */
+export function setWheelQueue(list) {
+  if (!Array.isArray(list)) return false;
+  const set = new Set(config.people);
+  const valid = list.map((s) => String(s).trim()).filter((m) => m && set.has(m));
+  config.wheelQueue = valid;
+  persist();
+  return valid;
+}
+
+export function getWheelQueue() {
+  return config.wheelQueue || [];
+}
+
+export function clearWheelQueue() {
+  config.wheelQueue = [];
+  persist();
   return true;
 }
 

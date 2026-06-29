@@ -7,6 +7,7 @@ import {
   setVenue,
   doSpin,
   setPeople,
+  removePerson,
   setLayout,
   setGroups,
   addGroup,
@@ -45,6 +46,11 @@ app.post("/api/people", (req, res) => {
   if (!setPeople(req.body?.people))
     return res.status(400).json({ error: "people phải là mảng tên" });
   res.json({ ok: true, state: getState() });
+});
+
+app.post("/api/people/remove", (req, res) => {
+  const ok = removePerson(req.body?.name);
+  res.json({ ok, state: getState() });
 });
 
 app.post("/api/layout", (req, res) => {

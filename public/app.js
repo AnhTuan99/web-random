@@ -240,6 +240,7 @@ function spinWheelTo(index) {
   btnSpin.disabled = true;
   $("wheelCenter").disabled = true;
   $("wheelWinner").classList.remove("show");
+  $("wheelActions").classList.remove("show");
   hint.textContent = "Đang quay…";
 
   const seg = (Math.PI * 2) / N;
@@ -275,7 +276,28 @@ function finishWheel(index) {
   banner.classList.add("show");
   hint.textContent = "Người được chọn: " + name;
   burst();
+  // hiện nút xoá / giữ lại người vừa trúng
+  lastWinnerName = name;
+  $("wheelActions").classList.add("show");
 }
+
+let lastWinnerName = null;
+$("removeWinner").addEventListener("click", async () => {
+  if (!lastWinnerName) return;
+  await api("/api/people/remove", {
+    method: "POST",
+    body: JSON.stringify({ name: lastWinnerName }),
+  });
+  $("wheelActions").classList.remove("show");
+  $("wheelWinner").classList.remove("show");
+  hint.textContent = `Đã xoá ${lastWinnerName} khỏi vòng quay.`;
+  lastWinnerName = null;
+  await sync(); // cập nhật state
+  buildWheel(); // vẽ lại vòng quay không còn người đó
+});
+$("keepWinner").addEventListener("click", () => {
+  $("wheelActions").classList.remove("show");
+});
 
 /* ---------------- Sync ---------------- */
 async function sync() {

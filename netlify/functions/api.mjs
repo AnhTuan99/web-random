@@ -6,6 +6,7 @@ import {
   setMode,
   setVenue,
   setPeople,
+  removePerson,
   setLayout,
   doSpin,
 } from "./shared/state.mjs";
@@ -51,6 +52,12 @@ export default async (req) => {
     if (!setPeople(s, body.people)) return json({ error: "people invalid" }, 400);
     await save(s);
     return json({ ok: true, state: publicState(s) });
+  }
+
+  if (path.endsWith("/people/remove") && method === "POST") {
+    const ok = removePerson(s, body.name);
+    await save(s);
+    return json({ ok, state: publicState(s) });
   }
 
   if (path.endsWith("/layout") && method === "POST") {

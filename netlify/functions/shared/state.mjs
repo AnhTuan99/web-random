@@ -79,6 +79,33 @@ export function setPeople(s, list) {
   return true;
 }
 
+export function removePerson(s, name) {
+  const n = String(name || "").trim();
+  if (!n) return false;
+  const before = s.config.people.length;
+  s.config.people = s.config.people.filter((p) => p !== n);
+  if (s.config.people.length === before) return false;
+  s.config.groups = (s.config.groups || []).map((g) => ({
+    ...g,
+    members: g.members.filter((m) => m !== n),
+  }));
+  s.config.wheelQueue = (s.config.wheelQueue || []).filter((m) => m !== n);
+  s.configRev++;
+  return true;
+}
+
+export function setWheelQueue(s, list) {
+  if (!Array.isArray(list)) return [];
+  const set = new Set(s.config.people);
+  const valid = list.map((x) => String(x).trim()).filter((m) => m && set.has(m));
+  s.config.wheelQueue = valid;
+  return valid;
+}
+
+export function clearWheelQueue(s) {
+  s.config.wheelQueue = [];
+}
+
 export function setLayout(s, rowDefs) {
   if (!Array.isArray(rowDefs)) return false;
   const defs = rowDefs
@@ -95,13 +122,23 @@ export function setLayout(s, rowDefs) {
 
 export function doSpin(s) {
   if ((s.config.venue || "cinema") === "wheel") {
-    s.lastWheel = spinWheel(s.config);
+    s.lastWheel = nextWheelResult(s);
     s.lastSpinAt = new Date().toISOString();
     return s.lastWheel;
   }
   s.lastResult = spin(s.config);
   s.lastSpinAt = new Date().toISOString();
   return s.lastResult;
+}
+
+function nextWheelResult(s) {
+  s.config.wheelQueue = s.config.wheelQueue || [];
+  while (s.config.wheelQueue.length) {
+    const name = s.config.wheelQueue.shift();
+    const idx = s.config.people.indexOf(name);
+    if (idx >= 0) return { winner: name, winnerIndex: idx };
+  }
+  return spinWheel(s.config);
 }
 
 export function requestSpin(s) {

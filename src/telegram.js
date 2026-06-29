@@ -10,6 +10,9 @@ import {
   clearGroups,
   removeGroup,
   setLayout,
+  setWheelQueue,
+  getWheelQueue,
+  clearWheelQueue,
 } from "./store.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -64,6 +67,10 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 • \`/sodo A:8, B:8, C:10\` — đặt các hàng & số ghế
 • \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\` — đổi loại quay
 
+*Vòng quay may mắn:*
+• \`/sapvong Tên1, Tên2\` — sắp đặt người trúng các lượt kế tiếp
+• \`/dsvong\` — xem sắp đặt · \`/xoavong\` — xoá sắp đặt (về ngẫu nhiên)
+
 Mở web để xem quay trực tiếp 🌀`;
 
 function parseList(s) {
@@ -115,6 +122,22 @@ async function handle(msg) {
       return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong` | `/loai vongquay`");
     const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨", wheel: "Vòng quay may mắn 🎡" }[v];
     return send(chatId, `✅ Đã đổi loại quay: *${name}*`);
+  }
+
+  if (low.startsWith("/sapvong")) {
+    const list = parseList(text.slice(8));
+    if (!list.length)
+      return send(
+        chatId,
+        "Cú pháp: `/sapvong Tên1, Tên2, ...` — đặt người trúng cho các lượt quay kế tiếp (theo thứ tự).\nXem: /dsvong · Xoá: /xoavong"
+      );
+    const valid = setWheelQueue(list);
+    const skipped = list.filter((n) => !valid.includes(n));
+    let msg = `✅ Đã sắp đặt người trúng vòng quay (theo thứ tự):\n${valid
+      .map((n, i) => `${i + 1}. ${n}`)
+      .join("\n")}`;
+    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong danh sách): ${skipped.join(", ")}`;
+    return send(chatId, msg);
   }
 
   if (low.startsWith("/sodo")) {
@@ -178,6 +201,22 @@ async function handle(msg) {
           "\n\n_Xoá 1 nhóm: /xoanhom <số> · Xoá tất cả: /xoanhom_"
       );
     }
+
+    case "/dsvong": {
+      const q = getWheelQueue();
+      return send(
+        chatId,
+        q.length
+          ? "🎡 *Người trúng vòng quay đã sắp đặt (theo thứ tự):*\n" +
+              q.map((n, i) => `${i + 1}. ${n}`).join("\n") +
+              "\n\n_Xoá sắp đặt: /xoavong_"
+          : "Chưa sắp đặt người trúng nào. Vòng quay đang chạy NGẪU NHIÊN.\nĐặt bằng: `/sapvong Tên1, Tên2`"
+      );
+    }
+
+    case "/xoavong":
+      clearWheelQueue();
+      return send(chatId, "🗑️ Đã xoá sắp đặt vòng quay. Giờ vòng quay chạy ngẫu nhiên.");
   }
 
   // ----- Ngôn ngữ tự nhiên -----

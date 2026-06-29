@@ -257,6 +257,11 @@ body.venue-normal .seat::after { display: none; }
   transition: opacity .4s, transform .4s; }
 .wheel-winner.show { opacity: 1; transform: translateY(0); }
 
+.wheel-actions { display: none; gap: 10px; justify-content: center; }
+.wheel-actions.show { display: flex; }
+.btn--danger { background: linear-gradient(135deg, #ff5d9e, #ff6b6b); border-color: transparent;
+  color: #fff; box-shadow: 0 12px 24px -12px rgba(255,93,158,.8); }
+
 /* Ẩn/hiện theo loại quay vòng quay */
 body.venue-wheel #stage,
 body.venue-wheel .screen,

@@ -11,6 +11,8 @@ import {
   addGroup,
   clearGroups,
   removeGroup,
+  setWheelQueue,
+  clearWheelQueue,
 } from "./shared/state.mjs";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -45,7 +47,8 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 *Nhóm ngồi cạnh nhau:* \`/nhom Tên1, Tên2\` · \`/dsnhom\` · \`/xoanhom <số>\` · \`/xoanhom\` (xoá hết)
 *Người:* \`/dsten\` · \`/setten An, Bình, ...\`
 *Sơ đồ:* \`/sodo A:8, B:8, C:10\`
-*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\``;
+*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\`
+*Vòng quay:* \`/sapvong Tên1, Tên2\` (sắp đặt người trúng) · \`/dsvong\` · \`/xoavong\``;
 
 async function handle(msg) {
   const chatId = msg.chat.id;
@@ -71,6 +74,17 @@ async function handle(msg) {
     setPeople(s, list);
     return reply(`✅ Đã đặt ${list.length} người:\n${list.join(", ")}`);
   }
+  if (low.startsWith("/sapvong")) {
+    const list = parseList(text.slice(8));
+    if (!list.length)
+      return send(chatId, "Cú pháp: `/sapvong Tên1, Tên2, ...` (đặt người trúng các lượt kế tiếp). Xem: /dsvong · Xoá: /xoavong");
+    const valid = setWheelQueue(s, list);
+    const skipped = list.filter((n) => !valid.includes(n));
+    let msg = `✅ Đã sắp đặt người trúng vòng quay:\n${valid.map((n, i) => `${i + 1}. ${n}`).join("\n")}`;
+    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong danh sách): ${skipped.join(", ")}`;
+    return reply(msg);
+  }
+
   if (low.startsWith("/sodo")) {
     const defs = parseList(text.slice(5)).map((tok) => {
       const [label, count] = tok.split(":").map((x) => x.trim());
@@ -117,6 +131,16 @@ async function handle(msg) {
           ? "📌 *Các nhóm:*\n" + s.config.groups.map((g, i) => `${i + 1}. ${g.label}: ${g.members.join(", ")}`).join("\n") + "\n\n_Xoá 1 nhóm: /xoanhom <số> · Xoá tất cả: /xoanhom_"
           : "Chưa có nhóm. Tạo bằng `/nhom ...`"
       );
+    case "/dsvong":
+      return send(
+        chatId,
+        (s.config.wheelQueue || []).length
+          ? "🎡 *Người trúng vòng quay đã sắp đặt:*\n" + s.config.wheelQueue.map((n, i) => `${i + 1}. ${n}`).join("\n") + "\n\n_Xoá sắp đặt: /xoavong_"
+          : "Chưa sắp đặt. Vòng quay đang NGẪU NHIÊN. Đặt bằng `/sapvong Tên1, Tên2`"
+      );
+    case "/xoavong":
+      clearWheelQueue(s);
+      return reply("🗑️ Đã xoá sắp đặt vòng quay. Giờ chạy ngẫu nhiên.");
   }
 
   if (low.includes("trạng thái") || low.includes("trang thai") || low === "/trangthai") {
