@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: random-seating-web
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false

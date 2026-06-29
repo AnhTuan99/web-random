@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sắp xếp chỗ ngồi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="venue-cinema">
+    <div class="aurora"><span></span><span></span><span></span></div>
+
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand__mark"></span>
+        <span class="brand__name">SeatSpin</span>
+      </div>
+      <button id="btnSettings" class="icon-btn" title="Cài đặt" aria-label="Cài đặt">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+
+    <main class="page">
+      <header class="hero">
+        <div class="kicker" id="kicker">EVENT · SEATING</div>
+        <h1 id="title">Sắp xếp chỗ ngồi</h1>
+        <p class="lead">Nhấn quay để bốc chỗ cho mọi người. Chúc may mắn!</p>
+
+        <div class="segmented" id="venuePicker" role="tablist">
+          <button class="seg" data-venue="cinema">🎬 Rạp phim</button>
+          <button class="seg" data-venue="office">💼 Chỗ làm việc</button>
+          <button class="seg" data-venue="normal">✨ Bình thường</button>
+        </div>
+      </header>
+
+      <div class="screen"><span id="screenText">MÀN HÌNH</span></div>
+
+      <section id="stage" class="stage"></section>
+
+      <div class="actions">
+        <button id="btnSpin" class="spin">
+          <span class="spin__glow"></span>
+          <span class="spin__label">Quay chỗ ngồi</span>
+        </button>
+      </div>
+
+      <p id="hint" class="hint">Sẵn sàng</p>
+    </main>
+
+    <!-- Ngăn cài đặt: chỉ tên + sơ đồ (KHÔNG có thông tin sắp đặt) -->
+    <div id="overlay" class="overlay"></div>
+    <aside id="drawer" class="drawer">
+      <div class="drawer__head">
+        <h2>Cài đặt</h2>
+        <button id="btnClose" class="icon-btn" aria-label="Đóng">✕</button>
+      </div>
+
+      <div class="drawer__body">
+        <section class="panel">
+          <h3>Danh sách người tham gia</h3>
+          <p class="panel__hint">Mỗi tên một dòng (hoặc cách nhau bởi dấu phẩy).</p>
+          <textarea id="peopleInput" rows="8" placeholder="Ngọc&#10;Quỳnh Anh&#10;Trinh&#10;..."></textarea>
+          <div class="row-actions">
+            <span id="peopleCount" class="muted">0 người</span>
+            <button id="savePeople" class="btn btn--primary">Lưu danh sách</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Sơ đồ chỗ ngồi</h3>
+          <p class="panel__hint">Mỗi hàng có nhãn (A, B, C…) và số ghế.</p>
+          <div id="layoutRows" class="layout-rows"></div>
+          <div class="row-actions">
+            <button id="addRow" class="btn">+ Thêm hàng</button>
+            <button id="saveLayout" class="btn btn--primary">Lưu sơ đồ</button>
+          </div>
+          <p id="seatSummary" class="muted"></p>
+        </section>
+      </div>
+    </aside>
+
+    <canvas id="fx"></canvas>
+    <script src="app.js"></script>
+  </body>
+</html>
