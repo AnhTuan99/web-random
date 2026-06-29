@@ -25,8 +25,8 @@ export function makeLayout(rowDefs) {
 }
 
 export function defaultConfig() {
-  const women = ["Ngọc", "Quỳnh Anh", "Trinh", "Diệp", "Oanh"];
-  const others = ["An", "Bình", "Cường", "Dũng", "Hải"];
+  const women = ["C.Ngọc", "C.Quỳnh Anh", "Trinh", "C.Diệp", "Oanh"];
+  const others = ["A.TA", "A.Nhật", "Ngô", "Đào"];
   return {
     mode: "natural", // "natural" | "arranged"
     venue: "cinema", // "cinema" | "office" | "normal"
