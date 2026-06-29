@@ -54,7 +54,7 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 *Nhóm ngồi cạnh nhau (chế độ sắp đặt):*
 • \`/nhom Ngọc, Trinh, Diệp\` — tạo 1 nhóm ngồi cạnh nhau
 • \`/dsnhom\` — xem các nhóm
-• \`/xoanhom\` — xoá tất cả nhóm
+• \`/xoanhom <số>\` — xoá 1 nhóm theo số · \`/xoanhom\` — xoá tất cả
 
 *Danh sách người:*
 • \`/dsten\` — xem danh sách
@@ -132,6 +132,25 @@ async function handle(msg) {
     );
   }
 
+  if (low.startsWith("/xoanhom")) {
+    const arg = text.slice(8).trim();
+    const st = getState();
+    if (!arg) {
+      clearGroups();
+      return send(chatId, "🗑️ Đã xoá tất cả nhóm.");
+    }
+    if (!st.groups.length) return send(chatId, "Chưa có nhóm nào để xoá.");
+    const idx = parseInt(arg, 10);
+    if (!Number.isInteger(idx) || idx < 1 || idx > st.groups.length)
+      return send(
+        chatId,
+        `Số nhóm không hợp lệ. Gõ /dsnhom để xem (hợp lệ: 1..${st.groups.length}).`
+      );
+    const g = st.groups[idx - 1];
+    removeGroup(g.id);
+    return send(chatId, `🗑️ Đã xoá *${g.label}*: ${g.members.join(", ")}`);
+  }
+
   // ----- Lệnh không tham số -----
   switch (low) {
     case "/start":
@@ -154,13 +173,10 @@ async function handle(msg) {
         "📌 *Các nhóm ngồi cạnh nhau:*\n" +
           st.groups
             .map((g, i) => `${i + 1}. ${g.label}: ${g.members.join(", ")}`)
-            .join("\n")
+            .join("\n") +
+          "\n\n_Xoá 1 nhóm: /xoanhom <số> · Xoá tất cả: /xoanhom_"
       );
     }
-
-    case "/xoanhom":
-      clearGroups();
-      return send(chatId, "🗑️ Đã xoá tất cả nhóm.");
   }
 
   // ----- Ngôn ngữ tự nhiên -----

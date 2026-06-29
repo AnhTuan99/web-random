@@ -10,6 +10,7 @@ import {
   requestSpin,
   addGroup,
   clearGroups,
+  removeGroup,
 } from "./shared/state.mjs";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -41,7 +42,7 @@ const parseList = (str) =>
 const HELP = `🎯 *Bot quay random chỗ ngồi*
 
 *Chế độ:* "random tự nhiên" · "random theo sắp đặt" · "quay" · "trạng thái"
-*Nhóm ngồi cạnh nhau:* \`/nhom Tên1, Tên2\` · \`/dsnhom\` · \`/xoanhom\`
+*Nhóm ngồi cạnh nhau:* \`/nhom Tên1, Tên2\` · \`/dsnhom\` · \`/xoanhom <số>\` · \`/xoanhom\` (xoá hết)
 *Người:* \`/dsten\` · \`/setten An, Bình, ...\`
 *Sơ đồ:* \`/sodo A:8, B:8, C:10\`
 *Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\``;
@@ -88,6 +89,21 @@ async function handle(msg) {
     return reply(`✅ Đã đổi loại quay: *${name}*`);
   }
 
+  if (low.startsWith("/xoanhom")) {
+    const arg = text.slice(8).trim();
+    if (!arg) {
+      clearGroups(s);
+      return reply("🗑️ Đã xoá tất cả nhóm.");
+    }
+    if (!s.config.groups.length) return send(chatId, "Chưa có nhóm nào để xoá.");
+    const idx = parseInt(arg, 10);
+    if (!Number.isInteger(idx) || idx < 1 || idx > s.config.groups.length)
+      return send(chatId, `Số nhóm không hợp lệ. Gõ /dsnhom để xem (1..${s.config.groups.length}).`);
+    const g = s.config.groups[idx - 1];
+    removeGroup(s, g.id);
+    return reply(`🗑️ Đã xoá *${g.label}*: ${g.members.join(", ")}`);
+  }
+
   switch (low) {
     case "/start":
     case "/help":
@@ -98,12 +114,9 @@ async function handle(msg) {
       return send(
         chatId,
         s.config.groups.length
-          ? "📌 *Các nhóm:*\n" + s.config.groups.map((g, i) => `${i + 1}. ${g.label}: ${g.members.join(", ")}`).join("\n")
+          ? "📌 *Các nhóm:*\n" + s.config.groups.map((g, i) => `${i + 1}. ${g.label}: ${g.members.join(", ")}`).join("\n") + "\n\n_Xoá 1 nhóm: /xoanhom <số> · Xoá tất cả: /xoanhom_"
           : "Chưa có nhóm. Tạo bằng `/nhom ...`"
       );
-    case "/xoanhom":
-      clearGroups(s);
-      return reply("🗑️ Đã xoá tất cả nhóm.");
   }
 
   if (low.includes("trạng thái") || low.includes("trang thai") || low === "/trangthai") {

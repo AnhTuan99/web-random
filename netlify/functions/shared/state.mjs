@@ -123,3 +123,8 @@ export function clearGroups(s) {
   s.config.groups = [];
   s.configRev++;
 }
+
+export function removeGroup(s, id) {
+  s.config.groups = (s.config.groups || []).filter((g) => g.id !== id);
+  s.configRev++;
+}
