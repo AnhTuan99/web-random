@@ -20,7 +20,6 @@ async function api(path, opts) {
   return res.json();
 }
 
-/* ---------------- Venue (loại quay) ---------------- */
 const VENUES = {
   cinema: { body: "venue-cinema", screen: "MÀN HÌNH", title: "Sắp xếp chỗ ngồi", kicker: "CINEMA · SEATING" },
   office: { body: "venue-office", screen: "", title: "Sắp xếp chỗ làm việc", kicker: "OFFICE · WORKSPACE" },
@@ -43,7 +42,7 @@ $("venuePicker").addEventListener("click", async (e) => {
   const v = btn.dataset.venue;
   if (v === state.venue) return;
 
-  // Cập nhật giao diện NGAY (không chờ server) để không nhấp nháy kết quả cũ
+
   pendingVenue = v;
   state.venue = v;
   lastVenue = v;
@@ -69,7 +68,6 @@ $("venuePicker").addEventListener("click", async (e) => {
   }
 });
 
-/* ---------------- Stage ---------------- */
 function buildStage() {
   stage.innerHTML = "";
   state.layout.rows.forEach((row) => {
@@ -105,7 +103,6 @@ function renderResult(result) {
   result.forEach((r) => setSeat(r.seatId, r.name, !r.name));
 }
 
-/* ---------------- Spin animation ---------------- */
 const rand = (a) => a[Math.floor(Math.random() * a.length)] ?? "…";
 
 function animateSpin(finalResult) {
@@ -163,7 +160,6 @@ function finishSpin() {
   }, 2600);
 }
 
-/* ---------------- Confetti ---------------- */
 let parts = [], fxOn = false;
 const ctx = fx.getContext("2d");
 function sizeFx() { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }
@@ -190,7 +186,6 @@ function stepFx() {
   else { ctx.clearRect(0, 0, fx.width, fx.height); fxOn = false; }
 }
 
-/* ---------------- Wheel of names ---------------- */
 const WSIZE = 520;
 const wheelCanvas = $("wheel");
 const wctx = wheelCanvas.getContext("2d");
@@ -235,7 +230,7 @@ function drawWheel(rot) {
     ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
     ctx.fill();
     ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1; ctx.stroke();
-    // tên
+
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(a0 + seg / 2);
@@ -247,7 +242,7 @@ function drawWheel(rot) {
     ctx.fillText(name, R - 16, 0);
     ctx.restore();
   }
-  // tâm
+
   ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, Math.PI * 2);
   ctx.fillStyle = "rgba(15,11,31,.9)"; ctx.fill();
   ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 4; ctx.stroke();
@@ -265,7 +260,7 @@ function spinWheelTo(index) {
 
   const seg = (Math.PI * 2) / N;
   const pointer = -Math.PI / 2;
-  const offset = (Math.random() - 0.5) * seg * 0.6; // lệch nhẹ trong ô cho tự nhiên
+  const offset = (Math.random() - 0.5) * seg * 0.6;
   const twoPi = Math.PI * 2;
   const targetMod = pointer - (index * seg + seg / 2) - offset;
 
@@ -318,14 +313,13 @@ $("removeWinner").addEventListener("click", async () => {
   buildWheel();
 });
 $("keepWinner").addEventListener("click", closeWinnerModal);
-// đóng popup khi bấm nền tối
+
 winnerModal.addEventListener("click", (e) => { if (e.target === winnerModal) closeWinnerModal(); });
 
-/* ---------------- Sync ---------------- */
 async function sync() {
   try {
     const st = await api("/api/state");
-    // Đang đổi venue mà server chưa cập nhật kịp -> bỏ qua nhịp này để không nhấp nháy
+
     if (pendingVenue && st.venue !== pendingVenue) return;
     pendingVenue = null;
     state = st;
@@ -364,7 +358,6 @@ async function spinFromWeb() {
 btnSpin.addEventListener("click", spinFromWeb);
 $("wheelCenter").addEventListener("click", spinFromWeb);
 
-/* ---------------- Settings drawer (chỉ tên + sơ đồ) ---------------- */
 let drawerOpen = false;
 const drawer = $("drawer"), overlay = $("overlay");
 function openDrawer() { drawerOpen = true; drawer.classList.add("open"); overlay.classList.add("open"); refreshSettings(); }
@@ -381,7 +374,6 @@ function refreshSettings() {
   updateSeatSummary();
 }
 
-/* People */
 function parseLines(v) {
   return [...new Set(v.split(/[\n,;]+/).map((s) => s.trim()).filter(Boolean))];
 }
@@ -396,7 +388,6 @@ $("savePeople").addEventListener("click", async () => {
   hint.textContent = `Đã lưu ${people.length} người.`;
 });
 
-/* Layout editor */
 function renderLayoutEditor() {
   const wrap = $("layoutRows");
   wrap.innerHTML = "";
@@ -438,6 +429,5 @@ $("saveLayout").addEventListener("click", async () => {
   hint.textContent = "Đã lưu sơ đồ chỗ ngồi.";
 });
 
-/* ---------------- boot ---------------- */
 sync();
 setInterval(sync, 1500);

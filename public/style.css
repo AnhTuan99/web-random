@@ -1,8 +1,5 @@
-/* =========================================================
-   SeatSpin — design system
-   ========================================================= */
 :root {
-  /* palette */
+
   --bg-0: #06050d;
   --bg-1: #0d0b1c;
   --bg-2: #14112a;
@@ -21,13 +18,13 @@
   --cyan: #38d0ff;
   --green: #43e0a0;
 
-  /* radii */
+
   --r-sm: 10px;
   --r-md: 14px;
   --r-lg: 20px;
   --r-xl: 28px;
 
-  /* shadows */
+
   --sh-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -16px rgba(0, 0, 0, 0.7);
   --sh-2: 0 24px 60px -28px rgba(0, 0, 0, 0.85);
   --glow-violet: 0 20px 50px -18px rgba(123, 97, 255, 0.6);
@@ -50,9 +47,8 @@ body {
 
 ::selection { background: rgba(123, 97, 255, 0.35); }
 
-/* ---------------- Aurora background ---------------- */
 .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.aurora::after { /* vignette + base gradient */
+.aurora::after {
   content: ""; position: absolute; inset: 0;
   background:
     radial-gradient(90% 60% at 50% -8%, rgba(123, 97, 255, 0.18), transparent 60%),
@@ -70,7 +66,6 @@ body {
 @keyframes drift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-5vw, 4vw); } }
 @media (prefers-reduced-motion: reduce) { .aurora span { animation: none; } }
 
-/* ---------------- Topbar ---------------- */
 .topbar {
   position: relative; z-index: 3;
   display: flex; align-items: center; justify-content: space-between;
@@ -96,14 +91,12 @@ body {
 .icon-btn:active { transform: scale(0.93); }
 .icon-btn:focus-visible { outline: 2px solid var(--violet-soft); outline-offset: 2px; }
 
-/* ---------------- Page ---------------- */
 .page {
   position: relative; z-index: 1;
   max-width: 1040px; margin: 0 auto;
   padding: clamp(10px, 2vw, 24px) clamp(18px, 4vw, 24px) 96px;
 }
 
-/* ---------------- Hero ---------------- */
 .hero { text-align: center; margin-bottom: clamp(26px, 5vw, 46px); }
 .kicker {
   display: inline-block; margin-bottom: 18px;
@@ -123,7 +116,6 @@ h1 {
   color: var(--muted); font-size: clamp(15px, 1.9vw, 17px);
 }
 
-/* ---------------- Segmented venue picker ---------------- */
 .segmented {
   display: inline-flex; gap: 6px;
   margin-top: 26px; padding: 6px;
@@ -155,7 +147,6 @@ h1 {
   .seg:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 
-/* ---------------- Cinema screen ---------------- */
 .screen { display: flex; justify-content: center; margin: 6px auto clamp(24px, 4vw, 38px); perspective: 600px; }
 .screen span {
   display: inline-block; width: min(74%, 620px); text-align: center;
@@ -167,7 +158,6 @@ h1 {
   transform: rotateX(34deg);
 }
 
-/* ---------------- Stage / rows / seats ---------------- */
 .stage { display: flex; flex-direction: column; gap: clamp(12px, 2.2vw, 20px); }
 .row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.6vw, 14px); flex-wrap: nowrap; }
 .row__label {
@@ -193,7 +183,7 @@ h1 {
   box-shadow: var(--sh-1);
   transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), border-color 0.3s, box-shadow 0.35s, background 0.3s;
 }
-.seat::after { /* base */
+.seat::after {
   content: ""; position: absolute; bottom: 4px; left: 20%; right: 20%; height: 4px;
   border-radius: 4px; background: rgba(255, 255, 255, 0.08);
 }
@@ -216,7 +206,6 @@ h1 {
 }
 @keyframes pop { 0% { transform: scale(0.92); } 55% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
-/* ---------------- Spin button ---------------- */
 .actions { display: flex; justify-content: center; margin: clamp(30px, 5vw, 48px) 0 16px; }
 .spin {
   position: relative; isolation: isolate; cursor: pointer; border: none;
@@ -238,7 +227,6 @@ h1 {
 .hint { text-align: center; color: var(--muted); font-size: 14px; min-height: 1.4em; letter-spacing: 0.01em; margin-top: 22px; }
 body.venue-wheel .hint { margin-top: 28px; }
 
-/* ---------------- Drawer ---------------- */
 .overlay {
   position: fixed; inset: 0; z-index: 8; background: rgba(4, 3, 10, 0.6);
   backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -307,7 +295,6 @@ textarea:focus, .text-input:focus, .num-input:focus {
   box-shadow: 0 12px 26px -14px rgba(255, 93, 158, 0.85);
 }
 
-/* Layout editor */
 .layout-rows { display: flex; flex-direction: column; gap: 10px; }
 .layout-row { display: flex; gap: 10px; align-items: center; }
 .layout-row .text-input { width: 72px; text-align: center; }
@@ -319,7 +306,6 @@ textarea:focus, .text-input:focus, .num-input:focus {
 }
 .layout-row .del:hover { color: var(--pink); background: rgba(255, 93, 158, 0.1); }
 
-/* ---------------- Wheel of names ---------------- */
 .wheel-wrap { display: none; flex-direction: column; align-items: center; gap: 24px; }
 .wheel-stage { position: relative; width: min(86vw, 500px); aspect-ratio: 1; }
 #wheel {
@@ -348,7 +334,6 @@ textarea:focus, .text-input:focus, .num-input:focus {
 .wheel-center:active { transform: translate(-50%, -50%) scale(0.95); }
 .wheel-center:disabled { filter: grayscale(0.4) brightness(0.85); cursor: not-allowed; }
 
-/* ---------------- Winner modal (popup) ---------------- */
 .modal {
   position: fixed; inset: 0; z-index: 14; display: grid; place-items: center;
   padding: 24px; background: rgba(4, 3, 10, 0.66); backdrop-filter: blur(6px);
@@ -382,7 +367,6 @@ textarea:focus, .text-input:focus, .num-input:focus {
 .modal__actions .btn { flex: 1 1 0; justify-content: center; padding: 13px 16px; font-size: 14.5px; }
 .btn--ghost { background: var(--surface-2); }
 
-/* ---------------- Venue variations ---------------- */
 body.venue-cinema .screen { display: flex; }
 
 body.venue-office .screen { display: none; }
@@ -403,5 +387,4 @@ body.venue-wheel .screen,
 body.venue-wheel .actions { display: none; }
 body.venue-wheel .wheel-wrap { display: flex; }
 
-/* ---------------- FX ---------------- */
 #fx { position: fixed; inset: 0; z-index: 12; pointer-events: none; }

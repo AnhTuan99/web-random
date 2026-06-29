@@ -1,8 +1,3 @@
-// Engine quay random chỗ ngồi (phiên bản nâng cấp)
-// - Sơ đồ tuỳ biến: nhiều hàng, số ghế mỗi hàng tuỳ ý (kiểu rạp phim)
-// - Nhóm "ngồi cạnh nhau": ở chế độ sắp đặt, mỗi nhóm chiếm các ghế LIỀN KỀ trong cùng 1 hàng
-// - 2 chế độ: "natural" (ngẫu nhiên hoàn toàn) | "arranged" (theo nhóm sắp đặt)
-
 export function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -12,7 +7,6 @@ export function shuffle(arr) {
   return a;
 }
 
-/** Tạo layout từ định nghĩa hàng: [{label:"A", count:8}, ...] */
 export function makeLayout(rowDefs) {
   return {
     rows: rowDefs.map((rd) => ({
@@ -28,8 +22,8 @@ export function defaultConfig() {
   const groupA = ["Alice", "Bob", "Charlie", "Diana", "Evan"];
   const others = ["Fiona", "George", "Hannah", "Ivan", "Julia"];
   return {
-    mode: "natural", // "natural" | "arranged"
-    venue: "cinema", // "cinema" | "office" | "wheel"
+    mode: "natural",
+    venue: "cinema",
     layout: makeLayout([
       { label: "A", count: 5 },
       { label: "B", count: 5 },
@@ -38,23 +32,20 @@ export function defaultConfig() {
     groups: [
       { id: "g1", label: "Group 1", members: [...groupA] },
     ],
-    wheelQueue: [], // (ẩn) danh sách người được sắp đặt sẽ trúng ở các lượt vòng quay kế tiếp
+    wheelQueue: [],
   };
 }
 
-/** Tổng số ghế trong layout */
 export function totalSeats(config) {
   return config.layout.rows.reduce((s, r) => s + r.seats.length, 0);
 }
 
-/** Quay 1 lần -> [{ seatId, rowLabel, name }] */
 export function spin(config) {
   return config.mode === "arranged"
     ? spinArranged(config)
     : spinNatural(config);
 }
 
-/** Vòng quay may mắn: chọn ngẫu nhiên 1 người trúng */
 export function spinWheel(config) {
   const people = config.people || [];
   if (!people.length) return { winner: null, winnerIndex: -1 };
@@ -79,7 +70,6 @@ function buildResult(rows) {
   return out;
 }
 
-/** Lấp các ghế trống bằng danh sách người (ghế được xáo ngẫu nhiên) */
 function fillEmpty(rows, people) {
   const empty = [];
   rows.forEach((row, ri) =>
@@ -100,7 +90,6 @@ function spinNatural(config) {
   return buildResult(rows);
 }
 
-/** Đặt 1 lượt tất cả nhóm vào các ghế liền kề. Trả về true nếu xếp được hết. */
 function placeGroupsOnce(rows, groups) {
   for (const members of groups) {
     const need = members.length;
@@ -126,7 +115,6 @@ function placeGroupsOnce(rows, groups) {
   return true;
 }
 
-/** Thử nhiều lần để xếp được tất cả nhóm vào ghế liền kề */
 function placeGroups(rows, groups) {
   const clear = () => rows.forEach((r) => r.seats.forEach((s) => (s.name = null)));
   for (let attempt = 0; attempt < 400; attempt++) {
@@ -141,11 +129,11 @@ function spinArranged(config) {
   const rows = freshRows(config);
   const peopleSet = new Set(config.people);
 
-  // Chỉ giữ thành viên hợp lệ (có trong danh sách người), xáo thứ tự trong nhóm
+
   const groups = (config.groups || [])
     .map((g) => shuffle((g.members || []).filter((m) => peopleSet.has(m))))
     .filter((g) => g.length > 0)
-    .sort((a, b) => b.length - a.length); // nhóm lớn xếp trước cho dễ vừa
+    .sort((a, b) => b.length - a.length);
 
   const placed = placeGroups(rows, groups);
 
@@ -154,7 +142,7 @@ function spinArranged(config) {
     const inGroup = new Set(groups.flat());
     individuals = shuffle(config.people.filter((p) => !inGroup.has(p)));
   } else {
-    // Không xếp được hết nhóm (thiếu chỗ liền kề) -> fallback random toàn bộ
+
     individuals = shuffle(config.people);
   }
 

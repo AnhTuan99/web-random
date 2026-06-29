@@ -1,4 +1,3 @@
-// Netlify Function v2 — xử lý toàn bộ /api/* cho web
 import {
   load,
   save,
@@ -25,7 +24,7 @@ export default async (req) => {
 
   const s = await load();
 
-  // GET /api/state
+
   if (path.endsWith("/state") && method === "GET") {
     return json(publicState(s));
   }

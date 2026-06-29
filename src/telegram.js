@@ -1,4 +1,3 @@
-// Telegram bot (long polling) - không cần thư viện ngoài (Node >= 18 có sẵn fetch).
 import {
   setMode,
   setVenue,
@@ -174,7 +173,7 @@ async function handle(msg) {
     return send(chatId, `🗑️ Đã xoá *${g.label}*: ${g.members.join(", ")}`);
   }
 
-  // ----- Lệnh không tham số -----
+
   switch (low) {
     case "/start":
     case "/help":
@@ -218,7 +217,7 @@ async function handle(msg) {
       return send(chatId, "🗑️ Đã xoá sắp đặt vòng quay. Giờ vòng quay chạy ngẫu nhiên.");
   }
 
-  // ----- Ngôn ngữ tự nhiên -----
+
   if (low.includes("trạng thái") || low.includes("trang thai") || low === "/trangthai") {
     const st = getState();
     const modeTxt = st.mode === "arranged" ? "THEO SẮP ĐẶT 🎭" : "TỰ NHIÊN 🌿";

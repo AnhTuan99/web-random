@@ -1,4 +1,3 @@
-// Trạng thái dùng chung + lưu xuống file data.json để không mất khi restart
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -8,15 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(__dirname, "..", "data.json");
 
 let config = load() ?? defaultConfig();
-// migrate: bỏ mode "normal" cũ
+
 if (!["cinema", "office", "wheel"].includes(config.venue)) config.venue = "cinema";
 
 let lastResult = null;
-let lastResultVenue = null; // venue mà lastResult được tạo ra
-let lastWheel = null; // { winner, winnerIndex } cho chế độ vòng quay
+let lastResultVenue = null;
+let lastWheel = null;
 let lastSpinAt = null;
-let spinRequestId = 0; // tăng lên khi Telegram yêu cầu quay
-let configRev = 0; // tăng lên khi cấu hình đổi (web rebuild sơ đồ)
+let spinRequestId = 0;
+let configRev = 0;
 
 function load() {
   try {
@@ -90,17 +89,16 @@ export function doSpin() {
   return lastResult;
 }
 
-// Quyết định người trúng vòng quay: ưu tiên hàng đợi sắp đặt, hết thì random
 function nextWheelResult() {
   config.wheelQueue = config.wheelQueue || [];
   while (config.wheelQueue.length) {
     const name = config.wheelQueue.shift();
     const idx = config.people.indexOf(name);
     if (idx >= 0) {
-      persist(); // hàng đợi đã đổi
+      persist();
       return { winner: name, winnerIndex: idx };
     }
-    // tên không còn trong danh sách -> bỏ qua, thử tiếp
+
     persist();
   }
   return spinWheel(config);
@@ -111,12 +109,11 @@ export function requestSpin() {
   return doSpin();
 }
 
-/** Thay toàn bộ danh sách người */
 export function setPeople(list) {
   if (!Array.isArray(list)) return false;
   const clean = [...new Set(list.map((s) => String(s).trim()).filter(Boolean))];
   config.people = clean;
-  // loại thành viên không còn tồn tại khỏi các nhóm
+
   const set = new Set(clean);
   config.groups = (config.groups || []).map((g) => ({
     ...g,
@@ -134,7 +131,6 @@ export function addPerson(name) {
   return true;
 }
 
-/** Xoá 1 người khỏi danh sách (kèm dọn nhóm + hàng đợi vòng quay) */
 export function removePerson(name) {
   const n = String(name).trim();
   if (!n) return false;
@@ -150,7 +146,6 @@ export function removePerson(name) {
   return true;
 }
 
-/** Đặt hàng đợi người trúng vòng quay (sắp đặt) */
 export function setWheelQueue(list) {
   if (!Array.isArray(list)) return false;
   const set = new Set(config.people);
@@ -170,7 +165,6 @@ export function clearWheelQueue() {
   return true;
 }
 
-/** Đặt sơ đồ từ định nghĩa hàng [{label, count}] */
 export function setLayout(rowDefs) {
   if (!Array.isArray(rowDefs) || rowDefs.length === 0) return false;
   const defs = rowDefs
@@ -219,7 +213,6 @@ export function clearGroups() {
   return true;
 }
 
-/** Thay toàn bộ groups (dùng cho web) */
 export function setGroups(groups) {
   if (!Array.isArray(groups)) return false;
   const set = new Set(config.people);

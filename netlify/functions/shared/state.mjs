@@ -1,4 +1,3 @@
-// Trạng thái dùng chung cho Netlify Functions, lưu bằng Netlify Blobs.
 import { getStore } from "@netlify/blobs";
 import {
   defaultConfig,
@@ -57,7 +56,6 @@ export function publicState(s) {
   };
 }
 
-/* ---- thao tác cấu hình (mutate + trả về s) ---- */
 export function setMode(s, mode) {
   if (mode !== "natural" && mode !== "arranged") return false;
   s.config.mode = mode;

@@ -1,4 +1,3 @@
-// Netlify Function v2 — webhook bot Telegram
 import {
   load,
   save,
@@ -185,7 +184,7 @@ export default async (req) => {
   } catch (e) {
     console.error("[telegram webhook]", e);
   }
-  // Luôn trả 200 để Telegram không gửi lại
+
   return new Response("ok");
 };
 
