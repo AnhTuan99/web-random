@@ -386,10 +386,6 @@ body.venue-office .seat.landed {
 }
 body.venue-office .row__label { background: rgba(56, 208, 255, 0.1); border-color: rgba(56, 208, 255, 0.22); }
 
-body.venue-normal .screen { display: none; }
-body.venue-normal .seat { border-radius: 12px; }
-body.venue-normal .seat::after { display: none; }
-
 body.venue-wheel #stage,
 body.venue-wheel .screen,
 body.venue-wheel .actions { display: none; }

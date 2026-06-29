@@ -15,6 +15,7 @@ function blank() {
   return {
     config: defaultConfig(),
     lastResult: null,
+    lastResultVenue: null,
     lastWheel: null,
     lastSpinAt: null,
     spinRequestId: 0,
@@ -25,7 +26,10 @@ function blank() {
 export async function load() {
   const store = getStore(STORE);
   const s = await store.get(KEY, { type: "json" });
-  if (s && s.config) return s;
+  if (s && s.config) {
+    if (!["cinema", "office", "wheel"].includes(s.config.venue)) s.config.venue = "cinema";
+    return s;
+  }
   const init = blank();
   await store.setJSON(KEY, init);
   return init;
@@ -45,6 +49,7 @@ export function publicState(s) {
     groups: s.config.groups,
     totalSeats: totalSeats(s.config),
     lastResult: s.lastResult,
+    lastResultVenue: s.lastResultVenue,
     lastWheel: s.lastWheel,
     lastSpinAt: s.lastSpinAt,
     spinRequestId: s.spinRequestId,
@@ -60,7 +65,7 @@ export function setMode(s, mode) {
 }
 
 export function setVenue(s, venue) {
-  if (!["cinema", "office", "normal", "wheel"].includes(venue)) return false;
+  if (!["cinema", "office", "wheel"].includes(venue)) return false;
   s.config.venue = venue;
   s.configRev++;
   return true;
@@ -127,6 +132,7 @@ export function doSpin(s) {
     return s.lastWheel;
   }
   s.lastResult = spin(s.config);
+  s.lastResultVenue = s.config.venue || "cinema";
   s.lastSpinAt = new Date().toISOString();
   return s.lastResult;
 }

@@ -47,7 +47,7 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 *Nhóm ngồi cạnh nhau:* \`/nhom Tên1, Tên2\` · \`/dsnhom\` · \`/xoanhom <số>\` · \`/xoanhom\` (xoá hết)
 *Người:* \`/dsten\` · \`/setten An, Bình, ...\`
 *Sơ đồ:* \`/sodo A:8, B:8, C:10\`
-*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\`
+*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai vongquay\`
 *Vòng quay:* \`/sapvong Tên1, Tên2\` (sắp đặt người trúng) · \`/dsvong\` · \`/xoavong\``;
 
 async function handle(msg) {
@@ -96,10 +96,10 @@ async function handle(msg) {
     );
   }
   if (low.startsWith("/loai")) {
-    const map = { rap: "cinema", cinema: "cinema", phim: "cinema", vanphong: "office", office: "office", lamviec: "office", thuong: "normal", normal: "normal", binhthuong: "normal", vongquay: "wheel", wheel: "wheel", vong: "wheel", mayman: "wheel" };
+    const map = { rap: "cinema", cinema: "cinema", phim: "cinema", vanphong: "office", office: "office", lamviec: "office", vongquay: "wheel", wheel: "wheel", vong: "wheel", mayman: "wheel" };
     const v = map[low.slice(5).trim().replace(/\s+/g, "")];
-    if (!v || !setVenue(s, v)) return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong` | `/loai vongquay`");
-    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨", wheel: "Vòng quay may mắn 🎡" }[v];
+    if (!v || !setVenue(s, v)) return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai vongquay`");
+    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", wheel: "Vòng quay may mắn 🎡" }[v];
     return reply(`✅ Đã đổi loại quay: *${name}*`);
   }
 

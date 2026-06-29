@@ -23,7 +23,6 @@ async function api(path, opts) {
 const VENUES = {
   cinema: { body: "venue-cinema", screen: "MÀN HÌNH", title: "Sắp xếp chỗ ngồi", kicker: "CINEMA · SEATING" },
   office: { body: "venue-office", screen: "", title: "Sắp xếp chỗ làm việc", kicker: "OFFICE · WORKSPACE" },
-  normal: { body: "venue-normal", screen: "", title: "Quay chỗ ngồi", kicker: "RANDOM · SEATING" },
   wheel: { body: "venue-wheel", screen: "", title: "Vòng quay may mắn", kicker: "LUCKY · WHEEL" },
 };
 function applyVenue(v) {
@@ -318,7 +317,7 @@ async function sync() {
       lastSeenSpin = st.spinRequestId;
       if (st.venue === "wheel") spinWheelTo(st.lastWheel ? st.lastWheel.winnerIndex : -1);
       else animateSpin(st.lastResult);
-    } else if (!isSpinning && st.venue !== "wheel" && st.lastResult) {
+    } else if (!isSpinning && st.venue !== "wheel" && st.lastResult && st.lastResultVenue === st.venue) {
       renderResult(st.lastResult);
     }
   } catch (_) {}

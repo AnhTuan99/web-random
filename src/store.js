@@ -8,8 +8,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(__dirname, "..", "data.json");
 
 let config = load() ?? defaultConfig();
+// migrate: bỏ mode "normal" cũ
+if (!["cinema", "office", "wheel"].includes(config.venue)) config.venue = "cinema";
 
 let lastResult = null;
+let lastResultVenue = null; // venue mà lastResult được tạo ra
 let lastWheel = null; // { winner, winnerIndex } cho chế độ vòng quay
 let lastSpinAt = null;
 let spinRequestId = 0; // tăng lên khi Telegram yêu cầu quay
@@ -53,6 +56,7 @@ export function getState() {
     groups: config.groups,
     totalSeats: totalSeats(config),
     lastResult,
+    lastResultVenue,
     lastWheel,
     lastSpinAt,
     spinRequestId,
@@ -68,7 +72,7 @@ export function setMode(mode) {
 }
 
 export function setVenue(venue) {
-  if (!["cinema", "office", "normal", "wheel"].includes(venue)) return false;
+  if (!["cinema", "office", "wheel"].includes(venue)) return false;
   config.venue = venue;
   bumpConfig();
   return true;
@@ -81,6 +85,7 @@ export function doSpin() {
     return lastWheel;
   }
   lastResult = spin(config);
+  lastResultVenue = config.venue || "cinema";
   lastSpinAt = new Date().toISOString();
   return lastResult;
 }

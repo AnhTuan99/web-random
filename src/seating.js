@@ -29,7 +29,7 @@ export function defaultConfig() {
   const others = ["Fiona", "George", "Hannah", "Ivan", "Julia"];
   return {
     mode: "natural", // "natural" | "arranged"
-    venue: "cinema", // "cinema" | "office" | "normal" | "wheel"
+    venue: "cinema", // "cinema" | "office" | "wheel"
     layout: makeLayout([
       { label: "A", count: 5 },
       { label: "B", count: 5 },

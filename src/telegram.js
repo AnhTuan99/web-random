@@ -65,7 +65,7 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 
 *Sơ đồ chỗ ngồi:*
 • \`/sodo A:8, B:8, C:10\` — đặt các hàng & số ghế
-• \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\` — đổi loại quay
+• \`/loai rap\` | \`/loai vanphong\` | \`/loai vongquay\` — đổi loại quay
 
 *Vòng quay may mắn:*
 • \`/sapvong Tên1, Tên2\` — sắp đặt người trúng các lượt kế tiếp
@@ -114,13 +114,12 @@ async function handle(msg) {
     const map = {
       rap: "cinema", cinema: "cinema", phim: "cinema",
       vanphong: "office", office: "office", lamviec: "office",
-      thuong: "normal", normal: "normal", binhthuong: "normal",
       vongquay: "wheel", wheel: "wheel", vong: "wheel", mayman: "wheel",
     };
     const v = map[arg.replace(/\s+/g, "")];
     if (!v || !setVenue(v))
-      return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong` | `/loai vongquay`");
-    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨", wheel: "Vòng quay may mắn 🎡" }[v];
+      return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai vongquay`");
+    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", wheel: "Vòng quay may mắn 🎡" }[v];
     return send(chatId, `✅ Đã đổi loại quay: *${name}*`);
   }
 
