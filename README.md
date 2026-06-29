@@ -36,6 +36,24 @@ Mở http://localhost:3000 — biểu tượng ⚙️ góc phải để nhập t
 3. Thêm biến môi trường `TELEGRAM_BOT_TOKEN`.
 4. Deploy → có link `https://...onrender.com`. Bot dùng long polling nên chỉ cần token.
 
+## Deploy trên Netlify (serverless)
+
+Bản này có sẵn cấu hình Netlify: web tĩnh + **Netlify Functions** + **Netlify Blobs** (lưu trạng thái) + bot Telegram qua **webhook**.
+
+1. netlify.com → **Add new site → Import from Git** → chọn repo `web-random`.
+   - Publish directory: `public` (đã khai trong `netlify.toml`).
+   - Không cần build command.
+2. **Site configuration → Environment variables** → thêm `TELEGRAM_BOT_TOKEN` = token bot.
+3. **Deploy**. Khi xong sẽ có URL dạng `https://<ten-site>.netlify.app`.
+4. **Đăng ký webhook cho bot** (thay TOKEN và URL site):
+   ```bash
+   curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<ten-site>.netlify.app/telegram"
+   ```
+   Trả về `{"ok":true,...}` là xong. (Lưu ý: nếu đang chạy bot long-polling ở máy local thì tắt đi, vì Telegram chỉ cho 1 cách nhận tin.)
+5. Mở `https://<ten-site>.netlify.app`, nhắn bot là chạy.
+
+> Endpoints trên Netlify: web gọi `/api/*` (function `api`), Telegram gọi `/telegram` (function `telegram`). Trạng thái lưu ở Netlify Blobs nên tồn tại lâu dài, không mất khi function khởi động lại.
+
 ## Cấu trúc
 ```
 server.js          # Express + REST API

@@ -1,0 +1,9 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Bot Telegram sẽ gọi webhook tại /telegram
+# Các API của web nằm ở /api/* (định nghĩa path ngay trong từng function v2)
