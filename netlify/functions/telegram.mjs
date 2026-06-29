@@ -77,11 +77,11 @@ async function handle(msg) {
   if (low.startsWith("/sapvong")) {
     const list = parseList(text.slice(8));
     if (!list.length)
-      return send(chatId, "Cú pháp: `/sapvong Tên1, Tên2, ...` (đặt người trúng các lượt kế tiếp). Xem: /dsvong · Xoá: /xoavong");
+      return send(chatId, "Cú pháp: `/sapvong Tên1, Tên2, ...` (đặt người trúng các lượt kế tiếp). Tên phải có trong /dsten. Xem: /dsvong · Xoá: /xoavong");
     const valid = setWheelQueue(s, list);
     const skipped = list.filter((n) => !valid.includes(n));
     let msg = `✅ Đã sắp đặt người trúng vòng quay:\n${valid.map((n, i) => `${i + 1}. ${n}`).join("\n")}`;
-    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong danh sách): ${skipped.join(", ")}`;
+    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong /dsten): ${skipped.join(", ")}`;
     return reply(msg);
   }
 

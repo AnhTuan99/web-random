@@ -129,14 +129,14 @@ async function handle(msg) {
     if (!list.length)
       return send(
         chatId,
-        "Cú pháp: `/sapvong Tên1, Tên2, ...` — đặt người trúng cho các lượt quay kế tiếp (theo thứ tự).\nXem: /dsvong · Xoá: /xoavong"
+        "Cú pháp: `/sapvong Tên1, Tên2, ...` — đặt người trúng cho các lượt quay kế tiếp (theo thứ tự).\nTên phải có trong danh sách người (xem /dsten).\nXem: /dsvong · Xoá: /xoavong"
       );
     const valid = setWheelQueue(list);
     const skipped = list.filter((n) => !valid.includes(n));
     let msg = `✅ Đã sắp đặt người trúng vòng quay (theo thứ tự):\n${valid
       .map((n, i) => `${i + 1}. ${n}`)
       .join("\n")}`;
-    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong danh sách): ${skipped.join(", ")}`;
+    if (skipped.length) msg += `\n\n⚠️ Bỏ qua (không có trong /dsten): ${skipped.join(", ")}`;
     return send(chatId, msg);
   }
 

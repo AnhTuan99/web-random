@@ -25,18 +25,18 @@ export function makeLayout(rowDefs) {
 }
 
 export function defaultConfig() {
-  const women = ["C.Ngọc", "C.Quỳnh Anh", "Trinh", "C.Diệp", "Oanh"];
-  const others = ["A.TA", "A.Nhật", "Ngô", "Đào"];
+  const groupA = ["Alice", "Bob", "Charlie", "Diana", "Evan"];
+  const others = ["Fiona", "George", "Hannah", "Ivan", "Julia"];
   return {
     mode: "natural", // "natural" | "arranged"
-    venue: "cinema", // "cinema" | "office" | "normal"
+    venue: "cinema", // "cinema" | "office" | "normal" | "wheel"
     layout: makeLayout([
       { label: "A", count: 5 },
       { label: "B", count: 5 },
     ]),
-    people: [...women, ...others],
+    people: [...groupA, ...others],
     groups: [
-      { id: "g1", label: "Nhóm cố định", members: [...women] },
+      { id: "g1", label: "Group 1", members: [...groupA] },
     ],
     wheelQueue: [], // (ẩn) danh sách người được sắp đặt sẽ trúng ở các lượt vòng quay kế tiếp
   };
