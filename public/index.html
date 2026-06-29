@@ -49,11 +49,6 @@
           <canvas id="wheel" width="520" height="520"></canvas>
           <button id="wheelCenter" class="wheel-center">QUAY</button>
         </div>
-        <div id="wheelWinner" class="wheel-winner"></div>
-        <div id="wheelActions" class="wheel-actions">
-          <button id="removeWinner" class="btn btn--danger">🗑 Xoá người này</button>
-          <button id="keepWinner" class="btn">Giữ lại</button>
-        </div>
       </section>
 
       <div class="actions">
@@ -89,14 +84,27 @@
           <h3>Sơ đồ chỗ ngồi</h3>
           <p class="panel__hint">Mỗi hàng có nhãn (A, B, C…) và số ghế.</p>
           <div id="layoutRows" class="layout-rows"></div>
-          <div class="row-actions">
+          <p id="seatSummary" class="muted seat-summary"></p>
+          <div class="row-actions row-actions--split">
             <button id="addRow" class="btn">+ Thêm hàng</button>
             <button id="saveLayout" class="btn btn--primary">Lưu sơ đồ</button>
           </div>
-          <p id="seatSummary" class="muted"></p>
         </section>
       </div>
     </aside>
+
+    <!-- Popup kết quả vòng quay -->
+    <div id="winnerModal" class="modal" aria-hidden="true">
+      <div class="modal__card" role="dialog" aria-modal="true">
+        <div class="modal__trophy">🏆</div>
+        <div class="modal__label">Người được chọn</div>
+        <div id="winnerName" class="modal__name">—</div>
+        <div class="modal__actions">
+          <button id="removeWinner" class="btn btn--danger">🗑 Xoá người này</button>
+          <button id="keepWinner" class="btn btn--ghost">Giữ lại</button>
+        </div>
+      </div>
+    </div>
 
     <canvas id="fx"></canvas>
     <script src="app.js"></script>

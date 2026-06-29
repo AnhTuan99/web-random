@@ -189,8 +189,6 @@ addEventListener("resize", () => { sizeWheel(); drawWheel(wheelRotation); });
 
 function buildWheel() {
   wheelNames = [...(state?.people || [])];
-  const banner = $("wheelWinner");
-  if (banner) banner.classList.remove("show");
   drawWheel(wheelRotation);
 }
 
@@ -239,8 +237,7 @@ function spinWheelTo(index) {
   isSpinning = true;
   btnSpin.disabled = true;
   $("wheelCenter").disabled = true;
-  $("wheelWinner").classList.remove("show");
-  $("wheelActions").classList.remove("show");
+  closeWinnerModal();
   hint.textContent = "Đang quay…";
 
   const seg = (Math.PI * 2) / N;
@@ -271,33 +268,35 @@ function finishWheel(index) {
   btnSpin.disabled = false;
   $("wheelCenter").disabled = false;
   const name = wheelNames[index];
-  const banner = $("wheelWinner");
-  banner.textContent = "🏆 " + name;
-  banner.classList.add("show");
-  hint.textContent = "Người được chọn: " + name;
+  hint.textContent = "";
   burst();
-  // hiện nút xoá / giữ lại người vừa trúng
+  // hiện popup kết quả
   lastWinnerName = name;
-  $("wheelActions").classList.add("show");
+  $("winnerName").textContent = name;
+  openWinnerModal();
 }
+
+const winnerModal = $("winnerModal");
+function openWinnerModal() { winnerModal.classList.add("open"); winnerModal.setAttribute("aria-hidden", "false"); }
+function closeWinnerModal() { winnerModal.classList.remove("open"); winnerModal.setAttribute("aria-hidden", "true"); }
 
 let lastWinnerName = null;
 $("removeWinner").addEventListener("click", async () => {
   if (!lastWinnerName) return;
+  const removed = lastWinnerName;
   await api("/api/people/remove", {
     method: "POST",
-    body: JSON.stringify({ name: lastWinnerName }),
+    body: JSON.stringify({ name: removed }),
   });
-  $("wheelActions").classList.remove("show");
-  $("wheelWinner").classList.remove("show");
-  hint.textContent = `Đã xoá ${lastWinnerName} khỏi vòng quay.`;
+  closeWinnerModal();
+  hint.textContent = `Đã xoá ${removed} khỏi vòng quay.`;
   lastWinnerName = null;
-  await sync(); // cập nhật state
-  buildWheel(); // vẽ lại vòng quay không còn người đó
+  await sync();
+  buildWheel();
 });
-$("keepWinner").addEventListener("click", () => {
-  $("wheelActions").classList.remove("show");
-});
+$("keepWinner").addEventListener("click", closeWinnerModal);
+// đóng popup khi bấm nền tối
+winnerModal.addEventListener("click", (e) => { if (e.target === winnerModal) closeWinnerModal(); });
 
 /* ---------------- Sync ---------------- */
 async function sync() {
