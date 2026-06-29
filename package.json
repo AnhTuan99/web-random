@@ -6,7 +6,6 @@
   "type": "module",
   "scripts": {
     "build": "javascript-obfuscator client/app.js --output public/app.js --compact true --control-flow-flattening true --control-flow-flattening-threshold 0.7 --dead-code-injection true --dead-code-injection-threshold 0.3 --string-array true --string-array-encoding base64 --string-array-threshold 1 --split-strings true --split-strings-chunk-length 6 --self-defending true --rename-globals true --identifier-names-generator hexadecimal --disable-console-output false",
-    "prestart": "npm run build",
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
