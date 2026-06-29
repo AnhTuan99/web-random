@@ -53,6 +53,14 @@ export function spin(config) {
     : spinNatural(config);
 }
 
+/** Vòng quay may mắn: chọn ngẫu nhiên 1 người trúng */
+export function spinWheel(config) {
+  const people = config.people || [];
+  if (!people.length) return { winner: null, winnerIndex: -1 };
+  const i = Math.floor(Math.random() * people.length);
+  return { winner: people[i], winnerIndex: i };
+}
+
 function freshRows(config) {
   return config.layout.rows.map((r) => ({
     label: r.label,

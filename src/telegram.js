@@ -62,7 +62,7 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 
 *Sơ đồ chỗ ngồi:*
 • \`/sodo A:8, B:8, C:10\` — đặt các hàng & số ghế
-• \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` — đổi loại quay
+• \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\` — đổi loại quay
 
 Mở web để xem quay trực tiếp 🌀`;
 
@@ -108,11 +108,12 @@ async function handle(msg) {
       rap: "cinema", cinema: "cinema", phim: "cinema",
       vanphong: "office", office: "office", lamviec: "office",
       thuong: "normal", normal: "normal", binhthuong: "normal",
+      vongquay: "wheel", wheel: "wheel", vong: "wheel", mayman: "wheel",
     };
     const v = map[arg.replace(/\s+/g, "")];
     if (!v || !setVenue(v))
-      return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong`");
-    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨" }[v];
+      return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong` | `/loai vongquay`");
+    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨", wheel: "Vòng quay may mắn 🎡" }[v];
     return send(chatId, `✅ Đã đổi loại quay: *${name}*`);
   }
 
@@ -194,6 +195,15 @@ async function handle(msg) {
   if (low === "/quay" || low === "quay" || low.includes("quay random") || low.includes("quay đi")) {
     const result = requestSpin();
     const st = getState();
+    if (st.venue === "wheel") {
+      const w = st.lastWheel;
+      return send(
+        chatId,
+        w && w.winner
+          ? `🎡 *Vòng quay may mắn!*\n🏆 Người được chọn: *${w.winner}*`
+          : "Chưa có ai trong danh sách. Thêm bằng /setten."
+      );
+    }
     const modeTxt = st.mode === "arranged" ? "THEO SẮP ĐẶT 🎭" : "TỰ NHIÊN 🌿";
     return send(chatId, `🌀 *Đã quay!* (${modeTxt})\n${fmtResult(result)}`);
   }

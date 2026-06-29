@@ -2,7 +2,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { defaultConfig, spin, makeLayout, totalSeats } from "./seating.js";
+import { defaultConfig, spin, spinWheel, makeLayout, totalSeats } from "./seating.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(__dirname, "..", "data.json");
@@ -10,6 +10,7 @@ const DATA_FILE = path.join(__dirname, "..", "data.json");
 let config = load() ?? defaultConfig();
 
 let lastResult = null;
+let lastWheel = null; // { winner, winnerIndex } cho chế độ vòng quay
 let lastSpinAt = null;
 let spinRequestId = 0; // tăng lên khi Telegram yêu cầu quay
 let configRev = 0; // tăng lên khi cấu hình đổi (web rebuild sơ đồ)
@@ -52,6 +53,7 @@ export function getState() {
     groups: config.groups,
     totalSeats: totalSeats(config),
     lastResult,
+    lastWheel,
     lastSpinAt,
     spinRequestId,
     configRev,
@@ -66,13 +68,18 @@ export function setMode(mode) {
 }
 
 export function setVenue(venue) {
-  if (!["cinema", "office", "normal"].includes(venue)) return false;
+  if (!["cinema", "office", "normal", "wheel"].includes(venue)) return false;
   config.venue = venue;
   bumpConfig();
   return true;
 }
 
 export function doSpin() {
+  if ((config.venue || "cinema") === "wheel") {
+    lastWheel = spinWheel(config);
+    lastSpinAt = new Date().toISOString();
+    return lastWheel;
+  }
   lastResult = spin(config);
   lastSpinAt = new Date().toISOString();
   return lastResult;

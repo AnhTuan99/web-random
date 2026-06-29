@@ -24,6 +24,7 @@ const VENUES = {
   cinema: { body: "venue-cinema", screen: "MÀN HÌNH", title: "Sắp xếp chỗ ngồi", kicker: "CINEMA · SEATING" },
   office: { body: "venue-office", screen: "", title: "Sắp xếp chỗ làm việc", kicker: "OFFICE · WORKSPACE" },
   normal: { body: "venue-normal", screen: "", title: "Quay chỗ ngồi", kicker: "RANDOM · SEATING" },
+  wheel: { body: "venue-wheel", screen: "", title: "Vòng quay may mắn", kicker: "LUCKY · WHEEL" },
 };
 function applyVenue(v) {
   const cfg = VENUES[v] || VENUES.cinema;
@@ -34,6 +35,7 @@ function applyVenue(v) {
   [...$("venuePicker").children].forEach((b) =>
     b.classList.toggle("active", b.dataset.venue === v)
   );
+  if (v === "wheel") buildWheel();
 }
 $("venuePicker").addEventListener("click", async (e) => {
   const btn = e.target.closest(".seg");
@@ -165,6 +167,116 @@ function stepFx() {
   else { ctx.clearRect(0, 0, fx.width, fx.height); fxOn = false; }
 }
 
+/* ---------------- Wheel of names ---------------- */
+const WSIZE = 520;
+const wheelCanvas = $("wheel");
+const wctx = wheelCanvas.getContext("2d");
+const WHEEL_COLORS = [
+  "#7c5cff", "#ff5d9e", "#ffca61", "#3ad0ff", "#5cffb1",
+  "#ff8a5c", "#b388ff", "#ff6b6b", "#4dd4ac", "#ffd166",
+];
+let wheelNames = [];
+let wheelRotation = 0;
+
+function sizeWheel() {
+  const dpr = window.devicePixelRatio || 1;
+  wheelCanvas.width = WSIZE * dpr;
+  wheelCanvas.height = WSIZE * dpr;
+  wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+sizeWheel();
+addEventListener("resize", () => { sizeWheel(); drawWheel(wheelRotation); });
+
+function buildWheel() {
+  wheelNames = [...(state?.people || [])];
+  const banner = $("wheelWinner");
+  if (banner) banner.classList.remove("show");
+  drawWheel(wheelRotation);
+}
+
+function drawWheel(rot) {
+  const ctx = wctx, R = WSIZE / 2 - 6, cx = WSIZE / 2, cy = WSIZE / 2;
+  ctx.clearRect(0, 0, WSIZE, WSIZE);
+  const N = wheelNames.length;
+  if (!N) {
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,.06)"; ctx.fill();
+    ctx.fillStyle = "#a6a2c4"; ctx.font = '600 18px "Be Vietnam Pro"';
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("Chưa có tên", cx, cy);
+    return;
+  }
+  const seg = (Math.PI * 2) / N;
+  const fontSize = Math.max(11, Math.min(22, 360 / N));
+  for (let i = 0; i < N; i++) {
+    const a0 = i * seg + rot, a1 = a0 + seg;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, a0, a1); ctx.closePath();
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1; ctx.stroke();
+    // tên
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a0 + seg / 2);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "#160f2e";
+    ctx.font = `700 ${fontSize}px "Be Vietnam Pro"`;
+    let name = wheelNames[i];
+    if (name.length > 16) name = name.slice(0, 15) + "…";
+    ctx.fillText(name, R - 16, 0);
+    ctx.restore();
+  }
+  // tâm
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(15,11,31,.9)"; ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 4; ctx.stroke();
+}
+
+function spinWheelTo(index) {
+  if (isSpinning) return;
+  const N = wheelNames.length;
+  if (index == null || index < 0 || index >= N) return;
+  isSpinning = true;
+  btnSpin.disabled = true;
+  $("wheelCenter").disabled = true;
+  $("wheelWinner").classList.remove("show");
+  hint.textContent = "Đang quay…";
+
+  const seg = (Math.PI * 2) / N;
+  const pointer = -Math.PI / 2;
+  const offset = (Math.random() - 0.5) * seg * 0.6; // lệch nhẹ trong ô cho tự nhiên
+  const twoPi = Math.PI * 2;
+  const targetMod = pointer - (index * seg + seg / 2) - offset;
+
+  const curMod = ((wheelRotation % twoPi) + twoPi) % twoPi;
+  const tgtMod = ((targetMod % twoPi) + twoPi) % twoPi;
+  let delta = tgtMod - curMod; if (delta < 0) delta += twoPi;
+  const final = wheelRotation + twoPi * 6 + delta;
+
+  const start = wheelRotation, dur = 4200, t0 = performance.now();
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+  const frame = (now) => {
+    const t = Math.min(1, (now - t0) / dur);
+    wheelRotation = start + (final - start) * ease(t);
+    drawWheel(wheelRotation);
+    if (t < 1) requestAnimationFrame(frame);
+    else { wheelRotation = final % twoPi; drawWheel(wheelRotation); finishWheel(index); }
+  };
+  requestAnimationFrame(frame);
+}
+
+function finishWheel(index) {
+  isSpinning = false;
+  btnSpin.disabled = false;
+  $("wheelCenter").disabled = false;
+  const name = wheelNames[index];
+  const banner = $("wheelWinner");
+  banner.textContent = "🏆 " + name;
+  banner.classList.add("show");
+  hint.textContent = "Người được chọn: " + name;
+  burst();
+}
+
 /* ---------------- Sync ---------------- */
 async function sync() {
   try {
@@ -177,13 +289,15 @@ async function sync() {
     if (st.configRev !== lastConfigRev) {
       lastConfigRev = st.configRev;
       buildStage();
+      if (st.venue === "wheel") buildWheel();
       if (drawerOpen) refreshSettings();
     }
 
     if (st.spinRequestId > lastSeenSpin) {
       lastSeenSpin = st.spinRequestId;
-      animateSpin(st.lastResult);
-    } else if (!isSpinning && st.lastResult) {
+      if (st.venue === "wheel") spinWheelTo(st.lastWheel ? st.lastWheel.winnerIndex : -1);
+      else animateSpin(st.lastResult);
+    } else if (!isSpinning && st.venue !== "wheel" && st.lastResult) {
       renderResult(st.lastResult);
     }
   } catch (_) {}
@@ -192,9 +306,16 @@ async function sync() {
 async function spinFromWeb() {
   if (isSpinning) return;
   const r = await api("/api/spin", { method: "POST" });
-  if (r.result) { lastSeenSpin = r.state.spinRequestId; animateSpin(r.result); }
+  if (!r.state) return;
+  lastSeenSpin = r.state.spinRequestId;
+  if (r.state.venue === "wheel") {
+    spinWheelTo(r.state.lastWheel ? r.state.lastWheel.winnerIndex : -1);
+  } else if (r.result) {
+    animateSpin(r.result);
+  }
 }
 btnSpin.addEventListener("click", spinFromWeb);
+$("wheelCenter").addEventListener("click", spinFromWeb);
 
 /* ---------------- Settings drawer (chỉ tên + sơ đồ) ---------------- */
 let drawerOpen = false;

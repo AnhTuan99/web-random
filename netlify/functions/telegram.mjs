@@ -45,7 +45,7 @@ const HELP = `🎯 *Bot quay random chỗ ngồi*
 *Nhóm ngồi cạnh nhau:* \`/nhom Tên1, Tên2\` · \`/dsnhom\` · \`/xoanhom <số>\` · \`/xoanhom\` (xoá hết)
 *Người:* \`/dsten\` · \`/setten An, Bình, ...\`
 *Sơ đồ:* \`/sodo A:8, B:8, C:10\`
-*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\``;
+*Loại quay:* \`/loai rap\` | \`/loai vanphong\` | \`/loai thuong\` | \`/loai vongquay\``;
 
 async function handle(msg) {
   const chatId = msg.chat.id;
@@ -82,10 +82,10 @@ async function handle(msg) {
     );
   }
   if (low.startsWith("/loai")) {
-    const map = { rap: "cinema", cinema: "cinema", phim: "cinema", vanphong: "office", office: "office", lamviec: "office", thuong: "normal", normal: "normal", binhthuong: "normal" };
+    const map = { rap: "cinema", cinema: "cinema", phim: "cinema", vanphong: "office", office: "office", lamviec: "office", thuong: "normal", normal: "normal", binhthuong: "normal", vongquay: "wheel", wheel: "wheel", vong: "wheel", mayman: "wheel" };
     const v = map[low.slice(5).trim().replace(/\s+/g, "")];
-    if (!v || !setVenue(s, v)) return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong`");
-    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨" }[v];
+    if (!v || !setVenue(s, v)) return send(chatId, "Cú pháp: `/loai rap` | `/loai vanphong` | `/loai thuong` | `/loai vongquay`");
+    const name = { cinema: "Rạp phim 🎬", office: "Chỗ làm việc 💼", normal: "Bình thường ✨", wheel: "Vòng quay may mắn 🎡" }[v];
     return reply(`✅ Đã đổi loại quay: *${name}*`);
   }
 
@@ -128,6 +128,14 @@ async function handle(msg) {
   }
   if (low === "/quay" || low === "quay" || low.includes("quay random") || low.includes("quay đi")) {
     const result = requestSpin(s);
+    if ((s.config.venue || "cinema") === "wheel") {
+      const w = s.lastWheel;
+      return reply(
+        w && w.winner
+          ? `🎡 *Vòng quay may mắn!*\n🏆 Người được chọn: *${w.winner}*`
+          : "Chưa có ai trong danh sách. Thêm bằng /setten."
+      );
+    }
     const modeTxt = s.config.mode === "arranged" ? "THEO SẮP ĐẶT 🎭" : "TỰ NHIÊN 🌿";
     return reply(`🌀 *Đã quay!* (${modeTxt})\n${fmtResult(result)}`);
   }

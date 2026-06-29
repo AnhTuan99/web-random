@@ -229,3 +229,36 @@ body.venue-office .row__label { background: rgba(58,208,255,.08); border-color: 
 body.venue-normal .screen { display: none; }
 body.venue-normal .seat { border-radius: 12px; }
 body.venue-normal .seat::after { display: none; }
+
+/* ---------- Vòng quay may mắn ---------- */
+.wheel-wrap { display: none; flex-direction: column; align-items: center; gap: 22px; }
+.wheel-stage { position: relative; width: min(86vw, 520px); aspect-ratio: 1; }
+#wheel { width: 100%; height: 100%; display: block;
+  border-radius: 50%; box-shadow: 0 30px 80px -30px rgba(124,92,255,.7), inset 0 0 0 8px rgba(255,255,255,.06); }
+.wheel-pointer { position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; z-index: 4;
+  border-left: 16px solid transparent; border-right: 16px solid transparent;
+  border-top: 30px solid var(--gold);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+.wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 22%; aspect-ratio: 1; border-radius: 50%; cursor: pointer; z-index: 3;
+  border: 4px solid rgba(255,255,255,.9); color: #160f2e; font-family: "Be Vietnam Pro";
+  font-weight: 800; font-size: clamp(13px,2.4vw,17px); letter-spacing: .04em;
+  background: linear-gradient(135deg,var(--gold),#ff9f7a 55%,var(--pink));
+  box-shadow: 0 10px 26px -10px rgba(0,0,0,.6);
+  transition: transform .15s, filter .2s; }
+.wheel-center:hover { transform: translate(-50%,-50%) scale(1.06); }
+.wheel-center:active { transform: translate(-50%,-50%) scale(.96); }
+.wheel-center:disabled { filter: grayscale(.4) brightness(.85); cursor: not-allowed; }
+.wheel-winner { min-height: 2.2em; text-align: center; font-family: "Be Vietnam Pro";
+  font-weight: 800; font-size: clamp(20px,4vw,32px);
+  background: linear-gradient(180deg,#fff,#ffd9a8); -webkit-background-clip: text;
+  background-clip: text; color: transparent; opacity: 0; transform: translateY(8px);
+  transition: opacity .4s, transform .4s; }
+.wheel-winner.show { opacity: 1; transform: translateY(0); }
+
+/* Ẩn/hiện theo loại quay vòng quay */
+body.venue-wheel #stage,
+body.venue-wheel .screen,
+body.venue-wheel .actions { display: none; }
+body.venue-wheel .wheel-wrap { display: flex; }

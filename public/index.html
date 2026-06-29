@@ -35,12 +35,22 @@
           <button class="seg" data-venue="cinema">🎬 Rạp phim</button>
           <button class="seg" data-venue="office">💼 Chỗ làm việc</button>
           <button class="seg" data-venue="normal">✨ Bình thường</button>
+          <button class="seg" data-venue="wheel">🎡 Vòng quay</button>
         </div>
       </header>
 
       <div class="screen"><span id="screenText">MÀN HÌNH</span></div>
 
       <section id="stage" class="stage"></section>
+
+      <section id="wheelWrap" class="wheel-wrap">
+        <div class="wheel-stage">
+          <div class="wheel-pointer"></div>
+          <canvas id="wheel" width="520" height="520"></canvas>
+          <button id="wheelCenter" class="wheel-center">QUAY</button>
+        </div>
+        <div id="wheelWinner" class="wheel-winner"></div>
+      </section>
 
       <div class="actions">
         <button id="btnSpin" class="spin">

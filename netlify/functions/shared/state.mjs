@@ -3,6 +3,7 @@ import { getStore } from "@netlify/blobs";
 import {
   defaultConfig,
   spin,
+  spinWheel,
   makeLayout,
   totalSeats,
 } from "../../../src/seating.js";
@@ -14,6 +15,7 @@ function blank() {
   return {
     config: defaultConfig(),
     lastResult: null,
+    lastWheel: null,
     lastSpinAt: null,
     spinRequestId: 0,
     configRev: 0,
@@ -43,6 +45,7 @@ export function publicState(s) {
     groups: s.config.groups,
     totalSeats: totalSeats(s.config),
     lastResult: s.lastResult,
+    lastWheel: s.lastWheel,
     lastSpinAt: s.lastSpinAt,
     spinRequestId: s.spinRequestId,
     configRev: s.configRev,
@@ -57,7 +60,7 @@ export function setMode(s, mode) {
 }
 
 export function setVenue(s, venue) {
-  if (!["cinema", "office", "normal"].includes(venue)) return false;
+  if (!["cinema", "office", "normal", "wheel"].includes(venue)) return false;
   s.config.venue = venue;
   s.configRev++;
   return true;
@@ -91,6 +94,11 @@ export function setLayout(s, rowDefs) {
 }
 
 export function doSpin(s) {
+  if ((s.config.venue || "cinema") === "wheel") {
+    s.lastWheel = spinWheel(s.config);
+    s.lastSpinAt = new Date().toISOString();
+    return s.lastWheel;
+  }
   s.lastResult = spin(s.config);
   s.lastSpinAt = new Date().toISOString();
   return s.lastResult;
