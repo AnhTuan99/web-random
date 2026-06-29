@@ -9,6 +9,7 @@ let pool = [];
 let lastSeenSpin = 0;
 let lastConfigRev = -1;
 let lastVenue = null;
+let pendingVenue = null;
 let isSpinning = false;
 
 async function api(path, opts) {
@@ -38,11 +39,34 @@ function applyVenue(v) {
 }
 $("venuePicker").addEventListener("click", async (e) => {
   const btn = e.target.closest(".seg");
-  if (!btn) return;
+  if (!btn || !state || isSpinning) return;
   const v = btn.dataset.venue;
-  applyVenue(v);
+  if (v === state.venue) return;
+
+  // Cập nhật giao diện NGAY (không chờ server) để không nhấp nháy kết quả cũ
+  pendingVenue = v;
+  state.venue = v;
   lastVenue = v;
-  await api("/api/venue", { method: "POST", body: JSON.stringify({ venue: v }) });
+  closeWinnerModal();
+  applyVenue(v);
+  if (v !== "wheel") {
+    buildStage();
+    if (state.lastResult && state.lastResultVenue === v) renderResult(state.lastResult);
+    hint.textContent = "Sẵn sàng";
+  } else {
+    hint.textContent = "Sẵn sàng";
+  }
+
+  try {
+    const r = await api("/api/venue", { method: "POST", body: JSON.stringify({ venue: v }) });
+    if (r.state) {
+      state = r.state;
+      lastConfigRev = r.state.configRev;
+      if (r.state.venue === pendingVenue) pendingVenue = null;
+    }
+  } catch (_) {
+    pendingVenue = null;
+  }
 });
 
 /* ---------------- Stage ---------------- */
@@ -301,6 +325,9 @@ winnerModal.addEventListener("click", (e) => { if (e.target === winnerModal) clo
 async function sync() {
   try {
     const st = await api("/api/state");
+    // Đang đổi venue mà server chưa cập nhật kịp -> bỏ qua nhịp này để không nhấp nháy
+    if (pendingVenue && st.venue !== pendingVenue) return;
+    pendingVenue = null;
     state = st;
     pool = [...(st.people || [])];
 

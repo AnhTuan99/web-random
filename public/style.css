@@ -125,7 +125,7 @@ h1 {
 
 /* ---------------- Segmented venue picker ---------------- */
 .segmented {
-  display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  display: inline-flex; gap: 6px;
   margin-top: 26px; padding: 6px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
   box-shadow: var(--sh-1);
@@ -134,6 +134,7 @@ h1 {
   cursor: pointer; border: none; background: transparent; color: var(--muted);
   font-family: inherit; font-weight: 600; font-size: 13.5px;
   padding: 10px 18px; border-radius: 999px; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   transition: color 0.2s, background 0.25s, box-shadow 0.25s, transform 0.12s;
 }
 .seg:hover { color: var(--ink); }
@@ -143,9 +144,15 @@ h1 {
   background: linear-gradient(135deg, #fff 0%, #e9e4ff 100%);
   box-shadow: 0 6px 18px -8px rgba(255, 255, 255, 0.5);
 }
-@media (max-width: 520px) {
-  .segmented { width: 100%; }
-  .seg { flex: 1 1 40%; padding: 11px 10px; font-size: 13px; }
+.seg:focus-visible { outline: 2px solid var(--violet-soft); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .segmented {
+    display: grid; grid-template-columns: 1fr 1fr; width: 100%;
+    gap: 8px; padding: 8px; border-radius: 22px;
+  }
+  .seg { padding: 13px 10px; font-size: 13.5px; border-radius: 14px; }
+  .seg:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 
 /* ---------------- Cinema screen ---------------- */
