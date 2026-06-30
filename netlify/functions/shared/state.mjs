@@ -173,6 +173,28 @@ export function clearGroups(s) {
   s.configRev++;
 }
 
+export function resetPeopleToDefault(s) {
+  const d = defaultConfig();
+  s.config.people = [...d.people];
+  const set = new Set(s.config.people);
+  s.config.groups = (s.config.groups || []).map((g) => ({
+    ...g,
+    members: g.members.filter((m) => set.has(m)),
+  }));
+  s.config.wheelQueue = (s.config.wheelQueue || []).filter((m) => set.has(m));
+  s.configRev++;
+  return s.config.people;
+}
+
+export function resetAll(s) {
+  s.config = defaultConfig();
+  s.lastResult = null;
+  s.lastResultVenue = null;
+  s.lastWheel = null;
+  s.lastSpinAt = null;
+  s.configRev++;
+}
+
 export function removeGroup(s, id) {
   s.config.groups = (s.config.groups || []).filter((g) => g.id !== id);
   s.configRev++;

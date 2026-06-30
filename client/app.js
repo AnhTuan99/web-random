@@ -11,6 +11,27 @@ let lastConfigRev = -1;
 let lastVenue = null;
 let pendingVenue = null;
 let isSpinning = false;
+let firstSync = true;
+let sessionSpun = false;
+
+function showToast(message, type = "success") {
+  let wrap = document.getElementById("toastWrap");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "toastWrap";
+    wrap.className = "toast-wrap";
+    document.body.appendChild(wrap);
+  }
+  const t = document.createElement("div");
+  t.className = "toast toast--" + type;
+  t.textContent = message;
+  wrap.appendChild(t);
+  requestAnimationFrame(() => t.classList.add("show"));
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => t.remove(), 350);
+  }, 2600);
+}
 
 async function api(path, opts) {
   const res = await fetch(path, {
@@ -50,7 +71,7 @@ $("venuePicker").addEventListener("click", async (e) => {
   applyVenue(v);
   if (v !== "wheel") {
     buildStage();
-    if (state.lastResult && state.lastResultVenue === v) renderResult(state.lastResult);
+    if (sessionSpun && state.lastResult && state.lastResultVenue === v) renderResult(state.lastResult);
     hint.textContent = "Sẵn sàng";
   } else {
     hint.textContent = "Sẵn sàng";
@@ -108,6 +129,7 @@ const rand = (a) => a[Math.floor(Math.random() * a.length)] ?? "…";
 function animateSpin(finalResult) {
   if (isSpinning || !finalResult) return;
   isSpinning = true;
+  sessionSpun = true;
   btnSpin.disabled = true;
   hint.textContent = "Đang quay…";
 
@@ -325,6 +347,8 @@ async function sync() {
     state = st;
     pool = [...(st.people || [])];
 
+    if (firstSync) { lastSeenSpin = st.spinRequestId; firstSync = false; }
+
     if (st.venue !== lastVenue) { lastVenue = st.venue; applyVenue(st.venue); }
 
     if (st.configRev !== lastConfigRev) {
@@ -338,7 +362,7 @@ async function sync() {
       lastSeenSpin = st.spinRequestId;
       if (st.venue === "wheel") spinWheelTo(st.lastWheel ? st.lastWheel.winnerIndex : -1);
       else animateSpin(st.lastResult);
-    } else if (!isSpinning && st.venue !== "wheel" && st.lastResult && st.lastResultVenue === st.venue) {
+    } else if (!isSpinning && st.venue !== "wheel" && sessionSpun && st.lastResult && st.lastResultVenue === st.venue) {
       renderResult(st.lastResult);
     }
   } catch (_) {}
@@ -383,9 +407,13 @@ function updatePeopleCount() {
 $("peopleInput").addEventListener("input", () => { updatePeopleCount(); updateSeatSummary(); });
 $("savePeople").addEventListener("click", async () => {
   const people = parseLines($("peopleInput").value);
-  await api("/api/people", { method: "POST", body: JSON.stringify({ people }) });
-  await sync(); refreshSettings();
-  hint.textContent = `Đã lưu ${people.length} người.`;
+  const r = await api("/api/people", { method: "POST", body: JSON.stringify({ people }) });
+  if (r && r.state) {
+    await sync(); refreshSettings();
+    showToast(`Đã lưu danh sách ${people.length} người`, "success");
+  } else {
+    showToast("Lưu danh sách thất bại" + (r?.error ? `: ${r.error}` : ""), "error");
+  }
 });
 
 function renderLayoutEditor() {
@@ -423,10 +451,15 @@ $("addRow").addEventListener("click", () => {
 });
 $("saveLayout").addEventListener("click", async () => {
   const rows = readLayoutEditor();
-  if (!rows.length) return;
-  await api("/api/layout", { method: "POST", body: JSON.stringify({ rows }) });
-  await sync(); refreshSettings();
-  hint.textContent = "Đã lưu sơ đồ chỗ ngồi.";
+  if (!rows.length) { showToast("Cần ít nhất 1 hàng có nhãn và số ghế", "error"); return; }
+  const r = await api("/api/layout", { method: "POST", body: JSON.stringify({ rows }) });
+  if (r && r.state) {
+    await sync(); refreshSettings();
+    const seats = rows.reduce((s, x) => s + x.count, 0);
+    showToast(`Đã lưu sơ đồ: ${rows.length} hàng · ${seats} ghế`, "success");
+  } else {
+    showToast("Lưu sơ đồ thất bại" + (r?.error ? `: ${r.error}` : ""), "error");
+  }
 });
 
 sync();

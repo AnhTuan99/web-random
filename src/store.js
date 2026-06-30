@@ -184,7 +184,6 @@ function nextGroupId() {
   return `g${Date.now().toString(36)}${groupSeq++}`;
 }
 
-/** Thêm 1 nhóm ngồi cạnh nhau */
 export function addGroup(members, label) {
   const set = new Set(config.people);
   const valid = [...new Set(members.map((s) => String(s).trim()).filter(Boolean))]
@@ -209,6 +208,29 @@ export function removeGroup(id) {
 
 export function clearGroups() {
   config.groups = [];
+  bumpConfig();
+  return true;
+}
+
+export function resetPeopleToDefault() {
+  const d = defaultConfig();
+  config.people = [...d.people];
+  const set = new Set(config.people);
+  config.groups = (config.groups || []).map((g) => ({
+    ...g,
+    members: g.members.filter((m) => set.has(m)),
+  }));
+  config.wheelQueue = (config.wheelQueue || []).filter((m) => set.has(m));
+  bumpConfig();
+  return config.people;
+}
+
+export function resetAll() {
+  config = defaultConfig();
+  lastResult = null;
+  lastResultVenue = null;
+  lastWheel = null;
+  lastSpinAt = null;
   bumpConfig();
   return true;
 }
