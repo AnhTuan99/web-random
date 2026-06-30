@@ -14,6 +14,10 @@ import {
   clearWheelQueue,
   resetPeopleToDefault,
   resetAll,
+  setPinnedSeat,
+  removePinnedSeat,
+  clearPinnedSeats,
+  getPinnedSeats,
 } from "./store.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -104,6 +108,10 @@ Bấm nút bên dưới để dùng nhanh (không cần gõ lệnh).
 *Vòng quay may mắn:*
 • \`/sapvong Tên1, Tên2\` — sắp đặt người trúng (theo /dsten)
 • \`/dsvong\` · \`/xoavong\`
+
+*Set cứng vị trí ngồi:*
+• \`/ghe A1 Tên\` — bắt 1 người luôn ngồi ghế A1
+• \`/dsghe\` · \`/xoaghe A1\` (hoặc /xoaghe xoá hết)
 
 *Khác:*
 • \`/menu\` — mở bảng nút bấm
@@ -211,6 +219,33 @@ async function handle(msg) {
     return send(chatId, actVenue(v));
   }
 
+  if (low.startsWith("/ghe")) {
+    const rest = text.slice(4).trim();
+    if (!rest)
+      return send(chatId, "Cú pháp: `/ghe A1 Alice` hoặc `/ghe A1=Alice` — set cứng người ngồi ghế A1.\nXem: /dsghe · Xoá: /xoaghe A1 (hoặc /xoaghe để xoá hết)");
+    let seatId, name;
+    if (rest.includes("=")) {
+      [seatId, name] = rest.split("=");
+    } else {
+      const m = rest.match(/^(\S+)\s+(.+)$/);
+      if (m) { seatId = m[1]; name = m[2]; }
+    }
+    seatId = (seatId || "").trim();
+    name = (name || "").trim();
+    if (!seatId || !name) return send(chatId, "Cú pháp: `/ghe A1 Alice` hoặc `/ghe A1=Alice`");
+    const r = setPinnedSeat(seatId, name);
+    if (!r.ok)
+      return send(chatId, r.reason === "no-seat" ? `Ghế *${seatId.toUpperCase()}* không tồn tại trong sơ đồ (xem /sodo).` : `Tên *${name}* không có trong danh sách (xem /dsten).`);
+    return send(chatId, `📌 Đã set cứng *${r.name}* ngồi ghế *${r.seatId}*. Áp dụng mỗi khi quay (rạp/chỗ làm việc).`);
+  }
+
+  if (low.startsWith("/xoaghe")) {
+    const arg = text.slice(7).trim().toUpperCase();
+    if (!arg) { clearPinnedSeats(); return send(chatId, "🗑️ Đã xoá tất cả ghế cố định."); }
+    if (!removePinnedSeat(arg)) return send(chatId, `Ghế *${arg}* chưa được set cứng.`);
+    return send(chatId, `🗑️ Đã bỏ set cứng ghế *${arg}*.`);
+  }
+
   if (low.startsWith("/sapvong")) {
     const list = parseList(text.slice(8));
     if (!list.length)
@@ -288,6 +323,17 @@ async function handle(msg) {
     case "/xoavong":
       clearWheelQueue();
       return send(chatId, "🗑️ Đã xoá sắp đặt vòng quay. Giờ chạy ngẫu nhiên.");
+
+    case "/dsghe": {
+      const p = getPinnedSeats();
+      const entries = Object.entries(p);
+      return send(
+        chatId,
+        entries.length
+          ? "📌 *Ghế cố định:*\n" + entries.map(([s, n]) => `• ${s} → ${n}`).join("\n") + "\n\n_Xoá 1: /xoaghe A1 · Xoá hết: /xoaghe_"
+          : "Chưa set cứng ghế nào. Đặt bằng `/ghe A1 Tên`."
+      );
+    }
   }
 
   if (low.includes("trạng thái") || low.includes("trang thai") || low === "/trangthai")

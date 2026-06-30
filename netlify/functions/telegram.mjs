@@ -13,6 +13,10 @@ import {
   clearWheelQueue,
   resetPeopleToDefault,
   resetAll,
+  setPinnedSeat,
+  removePinnedSeat,
+  clearPinnedSeats,
+  getPinnedSeats,
 } from "./shared/state.mjs";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -161,6 +165,27 @@ async function handle(msg) {
     setPeople(s, list);
     return reply(`✅ Đã đặt ${list.length} người:\n${list.join(", ")}`);
   }
+  if (low.startsWith("/ghe")) {
+    const rest = text.slice(4).trim();
+    if (!rest)
+      return send(chatId, "Cú pháp: `/ghe A1 Tên` hoặc `/ghe A1=Tên`. Xem: /dsghe · Xoá: /xoaghe A1 (hoặc /xoaghe xoá hết)");
+    let seatId, name;
+    if (rest.includes("=")) { [seatId, name] = rest.split("="); }
+    else { const m = rest.match(/^(\S+)\s+(.+)$/); if (m) { seatId = m[1]; name = m[2]; } }
+    seatId = (seatId || "").trim(); name = (name || "").trim();
+    if (!seatId || !name) return send(chatId, "Cú pháp: `/ghe A1 Tên` hoặc `/ghe A1=Tên`");
+    const r = setPinnedSeat(s, seatId, name);
+    if (!r.ok) return send(chatId, r.reason === "no-seat" ? `Ghế *${seatId.toUpperCase()}* không tồn tại (xem /sodo).` : `Tên *${name}* không có trong /dsten.`);
+    return reply(`📌 Đã set cứng *${r.name}* ngồi ghế *${r.seatId}*.`);
+  }
+
+  if (low.startsWith("/xoaghe")) {
+    const arg = text.slice(7).trim().toUpperCase();
+    if (!arg) { clearPinnedSeats(s); return reply("🗑️ Đã xoá tất cả ghế cố định."); }
+    if (!removePinnedSeat(s, arg)) return send(chatId, `Ghế *${arg}* chưa được set cứng.`);
+    return reply(`🗑️ Đã bỏ set cứng ghế *${arg}*.`);
+  }
+
   if (low.startsWith("/sapvong")) {
     const list = parseList(text.slice(8));
     if (!list.length)
@@ -227,6 +252,16 @@ async function handle(msg) {
     case "/xoavong":
       clearWheelQueue(s);
       return reply("🗑️ Đã xoá sắp đặt vòng quay. Giờ chạy ngẫu nhiên.");
+
+    case "/dsghe": {
+      const entries = Object.entries(getPinnedSeats(s));
+      return send(
+        chatId,
+        entries.length
+          ? "📌 *Ghế cố định:*\n" + entries.map(([k, n]) => `• ${k} → ${n}`).join("\n") + "\n\n_Xoá 1: /xoaghe A1 · Xoá hết: /xoaghe_"
+          : "Chưa set cứng ghế nào. Đặt bằng `/ghe A1 Tên`."
+      );
+    }
   }
 
   if (low.includes("trạng thái") || low.includes("trang thai") || low === "/trangthai")

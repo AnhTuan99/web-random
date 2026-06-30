@@ -27,6 +27,7 @@ export async function load() {
   const s = await store.get(KEY, { type: "json" });
   if (s && s.config) {
     if (!["cinema", "office", "wheel"].includes(s.config.venue)) s.config.venue = "cinema";
+    s.config.pinnedSeats = s.config.pinnedSeats || {};
     return s;
   }
   const init = blank();
@@ -78,6 +79,7 @@ export function setPeople(s, list) {
     ...g,
     members: g.members.filter((m) => set.has(m)),
   }));
+  cleanPinnedNL(s);
   s.configRev++;
   return true;
 }
@@ -93,6 +95,7 @@ export function removePerson(s, name) {
     members: g.members.filter((m) => m !== n),
   }));
   s.config.wheelQueue = (s.config.wheelQueue || []).filter((m) => m !== n);
+  cleanPinnedNL(s);
   s.configRev++;
   return true;
 }
@@ -182,6 +185,7 @@ export function resetPeopleToDefault(s) {
     members: g.members.filter((m) => set.has(m)),
   }));
   s.config.wheelQueue = (s.config.wheelQueue || []).filter((m) => set.has(m));
+  cleanPinnedNL(s);
   s.configRev++;
   return s.config.people;
 }
@@ -197,5 +201,45 @@ export function resetAll(s) {
 
 export function removeGroup(s, id) {
   s.config.groups = (s.config.groups || []).filter((g) => g.id !== id);
+  s.configRev++;
+}
+
+function cleanPinnedNL(s) {
+  const set = new Set(s.config.people);
+  const p = s.config.pinnedSeats || {};
+  for (const k of Object.keys(p)) if (!set.has(p[k])) delete p[k];
+  s.config.pinnedSeats = p;
+}
+
+export function getPinnedSeats(s) {
+  return s.config.pinnedSeats || {};
+}
+
+export function setPinnedSeat(s, seatId, name) {
+  const sid = String(seatId || "").trim().toUpperCase();
+  const n = String(name || "").trim();
+  const seatIds = new Set(s.config.layout.rows.flatMap((r) => r.seats.map((x) => x.id)));
+  if (!seatIds.has(sid)) return { ok: false, reason: "no-seat" };
+  if (!s.config.people.includes(n)) return { ok: false, reason: "no-person" };
+  s.config.pinnedSeats = s.config.pinnedSeats || {};
+  for (const k of Object.keys(s.config.pinnedSeats)) {
+    if (s.config.pinnedSeats[k] === n) delete s.config.pinnedSeats[k];
+  }
+  s.config.pinnedSeats[sid] = n;
+  s.configRev++;
+  return { ok: true, seatId: sid, name: n };
+}
+
+export function removePinnedSeat(s, seatId) {
+  const sid = String(seatId || "").trim().toUpperCase();
+  s.config.pinnedSeats = s.config.pinnedSeats || {};
+  if (!s.config.pinnedSeats[sid]) return false;
+  delete s.config.pinnedSeats[sid];
+  s.configRev++;
+  return true;
+}
+
+export function clearPinnedSeats(s) {
+  s.config.pinnedSeats = {};
   s.configRev++;
 }
